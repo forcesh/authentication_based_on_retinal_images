@@ -304,19 +304,19 @@ namespace retina
 			{
 				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
-					parameters[0] ++;//����� �������; TP
+					parameters[0] ++;//TP
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
-					parameters[1] ++;//����� ����������; TN
+					parameters[1] ++;//TN
 				}
 				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
-					parameters[3] ++;//������� ����������; FN
+					parameters[3] ++;//FN
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
-					parameters[2] ++;//������� �������; FP
+					parameters[2] ++;//FP
 				}
 			}
 		}
