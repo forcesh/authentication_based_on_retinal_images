@@ -20,10 +20,10 @@ namespace retina
 
 	//it's for binary images
 	//parameters : TpTnFpFn
-	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& input, std::vector<int>& parameters);
+	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& extracted_segment, std::vector<int>& parameters);
 	//it's for binary images
 	//return PERFORMANCE_PARAMS : TPR, FPR, SPC, ACC, F_SCORE
-	std::vector<float> countPerformanceParameters(const cv::Mat& gold_standard, const cv::Mat& input,
+	std::vector<float> countPerformanceParameters(const cv::Mat& gold_standard, const cv::Mat& extracted_segment,
 		int performance_flags, bool showTpTnFpFnPN = false);
 	//return PERFORMANCE_PARAMS : TPR, FPR, SPC, ACC, F_SCORE
 	//parameters : TpTnFpFn
@@ -45,17 +45,15 @@ namespace retina
 	//it's for binary images
 	void vesselsThiningMORPH(const cv::Mat& input, cv::Mat& output);
 	
-	//it uses vessSegmentation with standard parameters
-	//this method excludes 90 pixels from top, bottom, left and right
-	//omp is used
-	cv::Point2i opticDiscLocalizationGabor(const cv::Mat& retina, cv::Mat& output, bool show = false);
+	//this method will show good results if size of optic disc is less than 128 x 128
+	//(approximately like in the major part of DRIVE database)
+	cv::Point2i opticDiscLocalization(const cv::Mat& input, cv::Mat& output, bool show = false);
 
 	//it's only for retinas like in the RIM database
 	//this method will show good results if color space is BGR or if it is lightness channel
 	void opticDiscSegmentationRIM(const cv::Mat& input, cv::Mat& output, bool show = false);
-	//this method will show good results if color space is BGR or if it is lightness channel
-	//it uses opticDiscSegmentationRIM and opticDiscLocalizationGabor
-	//omp is used
+	//it uses opticDiscSegmentationRIM and opticDiscLocalization
+	//for more details see them
 	void opticDiscSegmentation(const cv::Mat& input, cv::Mat& output, bool show = false);
 }
 

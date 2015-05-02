@@ -121,7 +121,7 @@ void GaborFilter4vessels(const cv::Mat& input, cv::Mat& output, int thetaStep = 
 	float lambda = 4.f;
 	float sigma = 1.f, psi = 0, gamma = 0.15f;
 
-	std::vector<cv::Mat> filteredImages((int)(180 / thetaStep));
+	std::vector<cv::Mat> filteredImages(int(180.f / thetaStep) + 1);
 
 	#pragma omp parallel for
 	for (int theta = 0; theta < 180; theta += thetaStep)
@@ -217,7 +217,7 @@ int getThresholdUsingHist(const cv::Mat& input, const cv::Mat& mask, float sensi
 
 		int hist_w = 512; int hist_h = 400;
 
-		normalize(hist, hist, 0, hist_w, cv::NORM_MINMAX, -1, cv::Mat());
+		normalize(hist, hist, 0, hist_h, cv::NORM_MINMAX, -1, cv::Mat());
 
 		int bin_w = cvRound((double)hist_w / hist.rows);
 
@@ -279,11 +279,11 @@ std::vector<float> params2performanceParams(std::vector<int>& parameters, int pe
 
 namespace retina
 {
-	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& input, std::vector<int>& parameters)
+	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& extracted_segment, std::vector<int>& parameters)
 	{
 
-		if (gold_standard.size() != input.size() || gold_standard.type() != CV_8U || input.type() != CV_8U ||
-			gold_standard.channels() != 1 || input.channels() != 1)
+		if (gold_standard.size() != extracted_segment.size() || gold_standard.type() != CV_8U || extracted_segment.type() != CV_8U ||
+			gold_standard.channels() != 1 || extracted_segment.channels() != 1)
 		{
 
 			std::cerr << "old_standard.size() != input.size() || gold_standard.type() != CV_8U || input.type() != CV_8U ||"
@@ -302,31 +302,31 @@ namespace retina
 		{
 			for (int j = 0; j < gold_standard.cols; j++)
 			{
-				if (gold_standard.at< uchar >(i, j) > 100 && input.at< uchar >(i, j) > 100)
+				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
 					parameters[0] ++;//верно принята; TP
 				}
-				if (gold_standard.at< uchar >(i, j) < 100 && input.at< uchar >(i, j) < 100)
+				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
 					parameters[1] ++;//верно отвергнута; TN
 				}
-				if (gold_standard.at< uchar >(i, j) > 100 && input.at< uchar >(i, j) < 100)
+				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
 					parameters[3] ++;//неверно отвергнута; FN
 				}
-				if (gold_standard.at< uchar >(i, j) < 100 && input.at< uchar >(i, j) > 100)
+				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
 					parameters[2] ++;//неверно принята; FP
 				}
 			}
 		}
 	}
-	std::vector<float> countPerformanceParameters(const cv::Mat& gold_standard, const cv::Mat& input,
+	std::vector<float> countPerformanceParameters(const cv::Mat& gold_standard, const cv::Mat& extracted_segment,
 		int performance_flags, bool showTpTnFpFnPN)
 	{
 
-		if (gold_standard.size() != input.size() || gold_standard.type() != CV_8U || input.type() != CV_8U ||
-			gold_standard.channels() != 1 || input.channels() != 1)
+		if (gold_standard.size() != extracted_segment.size() || gold_standard.type() != CV_8U || extracted_segment.type() != CV_8U ||
+			gold_standard.channels() != 1 || extracted_segment.channels() != 1)
 		{
 
 			std::cerr << "gold_standard.size() != input.size() || gold_standard.type() != CV_8U || input.type() != CV_8U ||"
@@ -336,7 +336,7 @@ namespace retina
 		}
 		std::vector<int> parameters(4);
 		parameters = { 0, 0, 0, 0};
-		countTpTnFpFn(gold_standard, input, parameters);
+		countTpTnFpFn(gold_standard, extracted_segment, parameters);
 
 		std::vector<float> result = params2performanceParams(parameters, performance_flags);
 
@@ -560,48 +560,47 @@ namespace retina
 		skel.copyTo(output);
 	}
 
-	cv::Point2i opticDiscLocalizationGabor(const cv::Mat& retina, cv::Mat& output, bool show)
+	cv::Point2i opticDiscLocalization(const cv::Mat& input, cv::Mat& output, bool show)
 	{
-
-		if (retina.channels() > 1)
-			splitColorImg(retina, output, second);
+		if (input.channels() > 1)
+			splitColorImg(input, output, second);
 		else
-			retina.copyTo(output);
+			input.copyTo(output);
 
-		cv::copyMakeBorder(output, output, 30, 30, 30, 30, cv::BORDER_CONSTANT, cv::Scalar::all(255));
+		cv::Mat mask;
+		threshold(output, mask, 40, 255, CV_THRESH_BINARY_INV);
 
-		cv::Mat vessels;
-		vessSegmentation(output, vessels);
-
-		cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(2.5, cv::Size(31, 31));
-		clahe->apply(output, output);
-
-		int morph_size = 7;
+		int morph_size = 3;
 		cv::Mat element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * morph_size + 1, 2 * morph_size + 1),
 			cv::Point(morph_size, morph_size));
 
-		morphologyEx(output, output, cv::MORPH_CLOSE, element);
+		morphologyEx(mask, mask, cv::MORPH_OPEN, element);
 
-		GaborFilter4vessels(output, output, 90);
+		morph_size = 30;
+		element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * morph_size + 1, 2 * morph_size + 1),
+			cv::Point(morph_size, morph_size));
 
-		cv::Mat tmpVess;
-		morphologyEx(vessels, tmpVess, cv::MORPH_CLOSE, element);
-		output += tmpVess;
+		morphologyEx(mask, mask, cv::MORPH_DILATE, element);
+		morphologyEx(mask, mask, cv::MORPH_DILATE, element);
 
-		medianBlur(output, output, 31);
+		output -= mask;
 
-		cv::Rect rect(30, 30, retina.cols, retina.rows);
+		cv::copyMakeBorder(output, output, 30, 30, 30, 30, cv::BORDER_CONSTANT, cv::Scalar::all(255));
+
+		medianBlur(output, output, 25);
+
+		cv::Rect rect(30, 30, input.cols, input.rows);
 		output = output(rect);
 
-		uchar min = 255;
+		uchar max = 0;
 
-		int indent = 90;
+		int indent = 100;
 		for (int i = indent; i < output.rows - indent; i++)
 		{
 			for (int j = indent; j < output.cols - indent; j++)
 			{
-				if (output.at<uchar>(i, j) < min)
-					min = output.at<uchar>(i, j);
+				if (output.at<uchar>(i, j) > max)
+					max = output.at<uchar>(i, j);
 			}
 		}
 
@@ -611,7 +610,7 @@ namespace retina
 		{
 			for (int j = indent; j < output.cols - indent; j++)
 			{
-				if (output.at<uchar>(i, j) == min)
+				if (abs(output.at<uchar>(i, j) - max) < 1)
 				{
 					number++;
 					x += j;
@@ -628,9 +627,9 @@ namespace retina
 		if (show)
 		{
 			cv::Mat tmp;
-			retina.copyTo(tmp);
+			input.copyTo(tmp);
 
-			int radius = 150;
+			int radius = 64;
 
 			cv::circle(tmp, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
 			cv::circle(tmp, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);
@@ -697,7 +696,7 @@ namespace retina
 	void opticDiscSegmentation(const cv::Mat& input, cv::Mat& output, bool show)
 	{
 
-		cv::Point2i center = opticDiscLocalizationGabor(input, cv::Mat());
+		cv::Point2i center = opticDiscLocalization(input, cv::Mat());
 
 		float width = 128, height = 128;
 		float x = center.x - width / 2;

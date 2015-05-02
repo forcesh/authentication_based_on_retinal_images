@@ -96,14 +96,14 @@ int main(int argc, char**argv)
 
 					Mat extracted_vessels;
 
-					unsigned long t1, t2;
-					timeBeginPeriod(1);
-					t1 = timeGetTime();
-					retina::vessSegmentationGabor(retina, extracted_vessels);
+					//unsigned long t1, t2;
+					//timeBeginPeriod(1);
+					//t1 = timeGetTime();
+					retina::vessSegmentationGabor(retina, extracted_vessels, true);
 					//imshow("ves", extracted_vessels);
 					//waitKey();
-					t2 = timeGetTime() - t1;
-					cout << "time : " << t2 << " milliseconds" << endl;
+					//t2 = timeGetTime() - t1;
+					//cout << "time : " << t2 << " milliseconds" << endl;
 
 					retina::countTpTnFpFn(gold_standard, extracted_vessels, parameters);
 
@@ -249,7 +249,7 @@ int main(int argc, char**argv)
 					timeBeginPeriod(1);
 					t1 = timeGetTime();
 
-					retina::opticDiscLocalizationGabor(retina, extracted_disc);
+					retina::opticDiscSegmentation(retina, extracted_disc, true);
 
 					t2 = timeGetTime() - t1;
 					cout << "time : " << t2 << " milliseconds" << endl;
@@ -272,17 +272,16 @@ int main(int argc, char**argv)
 
 				while (getline(retinas_file, retina_name))
 				{
-					//if (stoi(retina_name.substr(1, 3)) < 174) continue;
 					string retina_img_path = "C:\\VARIA\\";
 					retina_img_path += retina_name;
 
 					Mat retina = imread(retina_img_path, 0);
 
-					resize(retina, retina, Size(retina.cols / 1.4, retina.rows / 1.4));
+					resize(retina, retina, Size(retina.cols / 1.8, retina.rows / 1.8));
 
 					cv::Mat opticDisc;
 					cout << retina_img_path << endl;
-					retina::opticDiscLocalizationGabor(retina, opticDisc, true);
+					retina::opticDiscSegmentation(retina, opticDisc, true);
 
 				}
 
@@ -708,7 +707,7 @@ int main(int argc, char**argv)
 
 			retina::Retina* retina = new retina::PCRetina(3);
 
-			for (int i = stoi(argv[4]); i >= 0; i--)//140 zlat; 797 chel ¬кл. их
+			for (int i = stoi(argv[4]); i >= 0; i--)//140 zlat; 705 chel вкл. их
 			{
 
 				cout << "i  = " << i << endl;
