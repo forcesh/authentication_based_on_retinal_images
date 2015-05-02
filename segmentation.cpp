@@ -217,7 +217,7 @@ int getThresholdUsingHist(const cv::Mat& input, const cv::Mat& mask, float sensi
 
 		int hist_w = 512; int hist_h = 400;
 
-		normalize(hist, hist, 0, hist_w, cv::NORM_MINMAX, -1, cv::Mat());
+		normalize(hist, hist, 0, hist_h, cv::NORM_MINMAX, -1, cv::Mat());
 
 		int bin_w = cvRound((double)hist_w / hist.rows);
 
@@ -304,19 +304,19 @@ namespace retina
 			{
 				if (gold_standard.at< uchar >(i, j) > 100 && input.at< uchar >(i, j) > 100)
 				{
-					parameters[0] ++;//верно принята; TP
+					parameters[0] ++;//ГўГҐГ°Г­Г® ГЇГ°ГЁГ­ГїГІГ ; TP
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && input.at< uchar >(i, j) < 100)
 				{
-					parameters[1] ++;//верно отвергнута; TN
+					parameters[1] ++;//ГўГҐГ°Г­Г® Г®ГІГўГҐГ°ГЈГ­ГіГІГ ; TN
 				}
 				if (gold_standard.at< uchar >(i, j) > 100 && input.at< uchar >(i, j) < 100)
 				{
-					parameters[3] ++;//неверно отвергнута; FN
+					parameters[3] ++;//Г­ГҐГўГҐГ°Г­Г® Г®ГІГўГҐГ°ГЈГ­ГіГІГ ; FN
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && input.at< uchar >(i, j) > 100)
 				{
-					parameters[2] ++;//неверно принята; FP
+					parameters[2] ++;//Г­ГҐГўГҐГ°Г­Г® ГЇГ°ГЁГ­ГїГІГ ; FP
 				}
 			}
 		}
