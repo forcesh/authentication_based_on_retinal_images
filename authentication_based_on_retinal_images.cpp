@@ -707,7 +707,7 @@ int main(int argc, char**argv)
 
 			retina::Retina* retina = new retina::PCRetina(3);
 
-			for (int i = stoi(argv[4]); i >= 0; i--)//140 zlat; 705 chel вкл. их
+			for (int i = stoi(argv[4]); i >= 0; i--)
 			{
 
 				cout << "i  = " << i << endl;

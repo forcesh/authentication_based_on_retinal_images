@@ -304,19 +304,19 @@ namespace retina
 			{
 				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
-					parameters[0] ++;//верно принята; TP
+					parameters[0] ++;//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ; TP
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
-					parameters[1] ++;//верно отвергнута; TN
+					parameters[1] ++;//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ; TN
 				}
 				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
-					parameters[3] ++;//неверно отвергнута; FN
+					parameters[3] ++;//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ; FN
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
-					parameters[2] ++;//неверно принята; FP
+					parameters[2] ++;//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ; FP
 				}
 			}
 		}
