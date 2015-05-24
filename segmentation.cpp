@@ -35,7 +35,7 @@ cv::Mat calcHist(const cv::Mat& input, const cv::Mat& mask)
 	return hist;
 }
 
-void unsharpFilterUsingCLAHE(const cv::Mat& input, cv::Mat& output, cv::Mat& outputMask, double clipLimit1 = 15,
+void backgroundExclusion(const cv::Mat& input, cv::Mat& output, cv::Mat& outputMask, double clipLimit1 = 15,
 	cv::Size size4clahe1 = cv::Size(15, 15), double clipLimit2 = 15, cv::Size size4clahe2 = cv::Size(15, 15))
 {
 
@@ -279,7 +279,7 @@ std::vector<float> params2performanceParams(std::vector<int>& parameters, int pe
 
 namespace retina
 {
-	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& extracted_segment, std::vector<int>& parameters)
+	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& extracted_segment, std::vector<int>& tpTnFpFn)
 	{
 
 		if (gold_standard.size() != extracted_segment.size() || gold_standard.type() != CV_8U || extracted_segment.type() != CV_8U ||
@@ -292,10 +292,10 @@ namespace retina
 			return;
 		}
 
-		if (parameters.size() < 4)
+		if (tpTnFpFn.size() < 4)
 		{
-			parameters.clear();
-			parameters = { 0, 0, 0, 0 };
+			tpTnFpFn.clear();
+			tpTnFpFn = { 0, 0, 0, 0 };
 		}
 
 		for (int i = 0; i < gold_standard.rows; i++)
@@ -304,19 +304,19 @@ namespace retina
 			{
 				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
-					parameters[0] ++;//����� �������; TP
+					tpTnFpFn[0] ++;//TP
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
-					parameters[1] ++;//����� ����������; TN
+					tpTnFpFn[1] ++;//TN
 				}
 				if (gold_standard.at< uchar >(i, j) > 100 && extracted_segment.at< uchar >(i, j) < 100)
 				{
-					parameters[3] ++;//������� ����������; FN
+					tpTnFpFn[3] ++;//FN
 				}
 				if (gold_standard.at< uchar >(i, j) < 100 && extracted_segment.at< uchar >(i, j) > 100)
 				{
-					parameters[2] ++;//������� �������; FP
+					tpTnFpFn[2] ++;//FP
 				}
 			}
 		}
@@ -350,23 +350,23 @@ namespace retina
 		return result;
 
 	}
-	std::vector<float> TpTnFpFn2PerformanceParameters(std::vector<int>& parameters, int performance_flags, bool showTpTnFpFnPN)
+	std::vector<float> TpTnFpFn2PerformanceParameters(std::vector<int>& tpTnFpFn, int performance_flags, bool showTpTnFpFnPN)
 	{
 
-		if (parameters.size() != 4)
+		if (tpTnFpFn.size() != 4)
 		{
 			std::cerr << "parameters.size() != 4" << std::endl;
 			return std::vector<float>();
 		}
 
-		std::vector<float> result = params2performanceParams(parameters, performance_flags);
+		std::vector<float> result = params2performanceParams(tpTnFpFn, performance_flags);
 
 
 		if (showTpTnFpFnPN)
 		{
-			std::cout << "TP = " << parameters[0] << ", TN = " << parameters[1] << ", FP = " << parameters[2] <<
-				", FN = " << parameters[3] << ", P = " << parameters[0] + parameters[3] <<
-				", N = " << parameters[2] + parameters[1] << std::endl;
+			std::cout << "TP = " << tpTnFpFn[0] << ", TN = " << tpTnFpFn[1] << ", FP = " << tpTnFpFn[2] <<
+				", FN = " << tpTnFpFn[3] << ", P = " << tpTnFpFn[0] + tpTnFpFn[3] <<
+				", N = " << tpTnFpFn[2] + tpTnFpFn[1] << std::endl;
 		}
 
 		return result;
@@ -464,9 +464,9 @@ namespace retina
 		cv::Mat mask;
 
 		if (!specificity_param)
-			unsharpFilterUsingCLAHE(padded, output, mask);
+			backgroundExclusion(padded, output, mask);
 		else
-			unsharpFilterUsingCLAHE(padded, output, mask, 2.5, cv::Size(8, 8), 5, cv::Size(8, 8));
+			backgroundExclusion(padded, output, mask, 2.5, cv::Size(8, 8), 5, cv::Size(8, 8));
 
 		threshold(output, output, 1, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
 
@@ -500,9 +500,9 @@ namespace retina
 		cv::Mat mask;
 
 		if (!specificity_param)
-			unsharpFilterUsingCLAHE(padded, output, mask);
+			backgroundExclusion(padded, output, mask);
 		else
-			unsharpFilterUsingCLAHE(padded, output, mask, 2.5, cv::Size(8, 8), 5, cv::Size(8, 8));
+			backgroundExclusion(padded, output, mask, 2.5, cv::Size(8, 8), 5, cv::Size(8, 8));
 
 		GaborFilter4vessels(output, output);
 

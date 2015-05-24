@@ -20,14 +20,14 @@ namespace retina
 
 	//it's for binary images
 	//parameters : TpTnFpFn
-	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& extracted_segment, std::vector<int>& parameters);
+	void countTpTnFpFn(const cv::Mat& gold_standard, const cv::Mat& extracted_segment, std::vector<int>& tpTnFpFn);
 	//it's for binary images
 	//return PERFORMANCE_PARAMS : TPR, FPR, SPC, ACC, F_SCORE
 	std::vector<float> countPerformanceParameters(const cv::Mat& gold_standard, const cv::Mat& extracted_segment,
 		int performance_flags, bool showTpTnFpFnPN = false);
 	//return PERFORMANCE_PARAMS : TPR, FPR, SPC, ACC, F_SCORE
 	//parameters : TpTnFpFn
-	std::vector<float> TpTnFpFn2PerformanceParameters(std::vector<int>& parameters, int performance_flags, bool showTpTnFpFnPN = false);
+	std::vector<float> TpTnFpFn2PerformanceParameters(std::vector<int>& tpTnFpFn, int performance_flags, bool showTpTnFpFnPN = false);
 
 	//it's for binary images
 	void filterByLength(const cv::Mat & input, cv::Mat & output, unsigned int length = 10);

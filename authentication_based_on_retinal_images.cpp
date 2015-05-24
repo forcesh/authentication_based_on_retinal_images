@@ -33,8 +33,8 @@ using namespace std;
 
 const string vessels_ = "vessels";
 const string disc = "disc";
-const string test_whole_varia = "whole_varia";
-const string test = "test";
+const string auth_whole_varia = "auth_whole_varia";
+const string auth = "auth";
 
 const string rim_database = "RIM";
 const string drive_database = "DRIVE";
@@ -84,13 +84,17 @@ int main(int argc, char**argv)
 				while (getline(vessels_file, vessels_name) && getline(retinas_file, retina_name))
 				{
 
-					string vessels_img_path = "C:\\DRIVE\\test\\1st_manual\\";
+					//string vessels_img_path = "C:\\DRIVE\\test\\1st_manual\\";
+					string vessels_img_path = "C:\\STARE\\labels-ah\\";
 					vessels_img_path += vessels_name;
 
-					string retina_img_path = "C:\\DRIVE\\test\\images\\";
+					//string retina_img_path = "C:\\DRIVE\\test\\images\\";
+					string retina_img_path = "C:\\STARE\\stare-images\\";
 					retina_img_path += retina_name;
 
 					Mat retina = imread(retina_img_path, CV_LOAD_IMAGE_COLOR);
+
+					//cout << retina_img_path << endl;
 
 					Mat gold_standard = imread(vessels_img_path, CV_LOAD_IMAGE_GRAYSCALE);
 
@@ -99,9 +103,11 @@ int main(int argc, char**argv)
 					//unsigned long t1, t2;
 					//timeBeginPeriod(1);
 					//t1 = timeGetTime();
-					retina::vessSegmentationGabor(retina, extracted_vessels, true);
-					//imshow("ves", extracted_vessels);
+					//imshow("ves", retina);
 					//waitKey();
+
+					retina::vessSegmentation(retina, extracted_vessels, true, 1.f);
+					
 					//t2 = timeGetTime() - t1;
 					//cout << "time : " << t2 << " milliseconds" << endl;
 
@@ -193,8 +199,8 @@ int main(int argc, char**argv)
 						if (argv[5] == resize_)
 						{
 
-							int width = 512;//128;
-							int height = 512;//128;
+							int width = 128;//128;
+							int height = 128;//128;
 
 							resize(retina, retina, cv::Size(width, height));
 							resize(gold_standard, gold_standard, retina.size());
@@ -281,7 +287,7 @@ int main(int argc, char**argv)
 
 					cv::Mat opticDisc;
 					cout << retina_img_path << endl;
-					retina::opticDiscSegmentation(retina, opticDisc, true);
+					retina::opticDiscLocalization(retina, opticDisc, true);
 
 				}
 
@@ -291,7 +297,7 @@ int main(int argc, char**argv)
 
 		}
 	}
-	else if (argv[1] == test_whole_varia)
+	else if (argv[1] == auth_whole_varia)
 	{
 
 		ifstream retinas_file(argv[2], ios_base::in);
@@ -501,7 +507,7 @@ int main(int argc, char**argv)
 		cout << "TPR = " << counted_params[0] << ", FPR = " << counted_params[1] << ", SPC = " <<
 			counted_params[2] << ", ACC = " << counted_params[3] << endl;
 	}
-	else if (argv[1] == test)
+	else if (argv[1] == auth)
 	{
 		if (argv[2] == varia_database)
 		{
@@ -563,6 +569,8 @@ int main(int argc, char**argv)
 					Mat retina1 = imread(path1, 1);
 
 					resize(retina1, retina1, Size(retina1.cols / 1.4, retina1.rows / 1.4));
+
+					cout << retina1.size() << endl;
 
 					cv::Mat vessels1;
 					retina::vessSegmentation(retina1, vessels1, true);
