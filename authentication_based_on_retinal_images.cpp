@@ -106,7 +106,7 @@ int main(int argc, char**argv)
 					//imshow("ves", retina);
 					//waitKey();
 
-					retina::vessSegmentation(retina, extracted_vessels, true, 1.f);
+					retina::vessSegmentation(retina, extracted_vessels, true, true);
 					
 					//t2 = timeGetTime() - t1;
 					//cout << "time : " << t2 << " milliseconds" << endl;

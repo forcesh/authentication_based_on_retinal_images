@@ -5,11 +5,6 @@
 
 namespace retina
 {
-	ARPRetina::ARPRetina()
-	{
-		angularPartNum = 360;
-		radialPartNum = 200;
-	};
 	ARPRetina::ARPRetina(int angularPartNum_, int radialPartNum_)
 	{
 		angularPartNum = angularPartNum_;

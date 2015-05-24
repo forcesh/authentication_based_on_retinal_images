@@ -22,7 +22,6 @@ namespace retina
 	{
 	public:
 		ARPRetina(int angularPartNum_ = 360, int radialPartNum_ = 200);
-		ARPRetina();
 		~ARPRetina();
 
 		virtual float compareVessels(const cv::Mat& vessels1, const cv::Mat& vessels2);
