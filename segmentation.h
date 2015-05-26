@@ -45,8 +45,7 @@ namespace retina
 	//it's for binary images
 	void vesselsThiningMORPH(const cv::Mat& input, cv::Mat& output);
 	
-	//this method will show good results if size of optic disc is less than 128 x 128
-	//(approximately like in the major part of DRIVE database)
+	//
 	cv::Point2i opticDiscLocalization(const cv::Mat& input, cv::Mat& output, bool show = false);
 
 	//it's only for retinas like in the RIM database
