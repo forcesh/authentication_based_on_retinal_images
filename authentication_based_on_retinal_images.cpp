@@ -212,7 +212,7 @@ int main(int argc, char**argv)
 					timeBeginPeriod(1);
 					t1 = timeGetTime();
 
-					retina::opticDiscSegmentationRIM(retina, extracted_disc, true);
+					retina::opticDiscSegmentationRIM(retina, extracted_disc);
 					t2 = timeGetTime() - t1;
 
 					cout << "time : " << t2 << " milliseconds" << endl;
@@ -255,7 +255,7 @@ int main(int argc, char**argv)
 					timeBeginPeriod(1);
 					t1 = timeGetTime();
 
-					retina::opticDiscSegmentation(retina, extracted_disc, true);
+					retina::opticDiscLocalization(retina, extracted_disc);
 
 					t2 = timeGetTime() - t1;
 					cout << "time : " << t2 << " milliseconds" << endl;
@@ -276,14 +276,20 @@ int main(int argc, char**argv)
 
 				string retina_name;
 
+				int cx = 0;
 				while (getline(retinas_file, retina_name))
 				{
+					cx++;
+					//if (cx < 153) continue;
+
 					string retina_img_path = "C:\\VARIA\\";
 					retina_img_path += retina_name;
 
 					Mat retina = imread(retina_img_path, 0);
 
-					resize(retina, retina, Size(retina.cols / 1.8, retina.rows / 1.8));
+					resize(retina, retina, Size(retina.cols / 1.4, retina.rows / 1.4));
+
+					cout << retina.size() << endl;
 
 					cv::Mat opticDisc;
 					cout << retina_img_path << endl;

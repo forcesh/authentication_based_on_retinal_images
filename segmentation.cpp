@@ -568,7 +568,7 @@ namespace retina
 			input.copyTo(output);
 
 		cv::Mat mask;
-		threshold(output, mask, 40, 255, CV_THRESH_BINARY_INV);
+		threshold(output, mask, 40, 255, CV_THRESH_BINARY);
 
 		int morph_size = 3;
 		cv::Mat element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * morph_size + 1, 2 * morph_size + 1),
@@ -576,13 +576,13 @@ namespace retina
 
 		morphologyEx(mask, mask, cv::MORPH_OPEN, element);
 
-		morph_size = 30;
-		element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(2 * morph_size + 1, 2 * morph_size + 1),
-			cv::Point(morph_size, morph_size));
+		resize(mask, mask, cv::Size(mask.cols / 1.4, mask.rows / 1.4));
 
-		morphologyEx(mask, mask, cv::MORPH_DILATE, element);
-		morphologyEx(mask, mask, cv::MORPH_DILATE, element);
+		cv::copyMakeBorder(mask, mask, (output.rows - mask.rows) / 2, output.rows - mask.rows - (output.rows - mask.rows) / 2,
+			(output.cols - mask.cols) / 2, output.cols - mask.cols - (output.cols - mask.cols) / 2, cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
+		mask = 255 - mask;
+		
 		output -= mask;
 
 		cv::copyMakeBorder(output, output, 30, 30, 30, 30, cv::BORDER_CONSTANT, cv::Scalar::all(255));
@@ -650,7 +650,7 @@ namespace retina
 		if (input.channels() > 1)
 		{
 
-			cvtColor(output, output, CV_BGR2HLS);
+			//cvtColor(output, output, CV_BGR2HLS);
 
 			splitColorImg(output, output, second);
 		}
